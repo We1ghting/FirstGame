@@ -1,0 +1,10 @@
+.vs/
+Library/
+Temp/
+Obj/
+Logs/
+UserSettings/
+*.csproj
+*.sln
+*.suo
+*.user
