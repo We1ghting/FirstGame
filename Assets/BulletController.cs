@@ -14,4 +14,14 @@ public class BulletController : MonoBehaviour
         // 飞出屏幕2秒后自动销毁，防止游戏卡死
         Destroy(gameObject, 2f);
     }
+    // 在BulletController类里面加这个方法
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        // 如果撞到的东西标签是"Enemy"
+        if (other.CompareTag("Enemy"))
+        {
+            Destroy(other.gameObject); // 敌人消失
+            Destroy(gameObject);       // 子弹消失
+        }
+    }
 }
