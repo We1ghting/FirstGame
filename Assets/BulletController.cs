@@ -4,6 +4,7 @@ public class BulletController : MonoBehaviour
 {
     public float speed = 10f; // 子弹飞行速度
     public Vector3 moveDirection = Vector3.up; // 默认向上，之后由玩家脚本控制
+    public float attackPower = 40f; // 魔法攻击力
 
     void Update()
     {
@@ -17,11 +18,11 @@ public class BulletController : MonoBehaviour
     // 在BulletController类里面加这个方法
     void OnTriggerEnter2D(Collider2D other)
     {
-        // 如果撞到的东西标签是"Enemy"
         if (other.CompareTag("Enemy"))
         {
-            Destroy(other.gameObject); // 敌人消失
-            Destroy(gameObject);       // 子弹消失
+            // 调用敌人的受伤方法，攻击类型是魔法
+            other.GetComponent<EnemyController>().TakeDamage(attackPower, "Magic");
+            Destroy(gameObject); // 子弹消失
         }
     }
 }
