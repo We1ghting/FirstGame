@@ -6,18 +6,24 @@ public class EnemyController : MonoBehaviour
     public float speed = 2f;
     private GameObject player;
 
-    // 血量与属性
-    public float maxHealth = 90f;
-    private float currentHealth;
-    public float physDefense = 5f;   // 物理防御
-    public float magDefense = 10f;   // 魔法防御
-    public float attackPower = 10f;  // 物理攻击力
+    // ================== 基础数值 ==================
+    public float hp = 54f;         // 血量（刚好三下死）
+    private float currentHp;
+    public float pdef = 10f;       // 物理防御
+    public float mdef = 10f;       // 魔法防御
+    public float patk = 50f;       // 物理攻击力
+    public float matk = 40f;       // 魔法攻击力
+    public float collisionPower = 10f; // 碰撞技能威力
+
+    // ================== 新增：重量与属性 ==================
+    [Range(0f, 21f)] public float wt = 1f; // 重量
+    public string sin1 = "嫉妒";            // 第一罪孽属性
+    public string sin2 = "无";              // 第二罪孽属性
 
     // ================== 2. 生命周期方法区 ==================
     void Start()
     {
-        currentHealth = maxHealth;
-        // 找到主角
+        currentHp = hp;
         player = GameObject.FindGameObjectWithTag("Player");
     }
 
@@ -25,48 +31,46 @@ public class EnemyController : MonoBehaviour
     {
         if (player != null)
         {
-            // 1. 计算指向主角的方向向量
             Vector3 direction = (player.transform.position - transform.position).normalized;
-
-            // 2. 朝主角移动
             transform.Translate(direction * speed * Time.deltaTime);
 
-            // 3. 根据水平方向翻转图像
-            if (direction.x > 0.01f)
-            {
-                GetComponent<SpriteRenderer>().flipX = false;
-            }
-            else if (direction.x < -0.01f)
-            {
-                GetComponent<SpriteRenderer>().flipX = true;
-            }
+            if (direction.x > 0.01f) GetComponent<SpriteRenderer>().flipX = false;
+            else if (direction.x < -0.01f) GetComponent<SpriteRenderer>().flipX = true;
         }
     }
 
     // ================== 3. 自定义方法区 ==================
-    // 这就是报错缺失的方法！
-    public void TakeDamage(float attackPower, string attackType)
+    // 敌人受到的伤害（接收子弹传来的数据）
+    public void TakeDamage(float shooterAtk, float skillPower, string attackType, float critMultiplier)
     {
-        float defense = (attackType == "Physical") ? physDefense : magDefense;
-        float damage = attackPower * (100f / (100f + defense));
-        damage = Mathf.Round(damage * 10f) / 10f; // 保留一位小数
+        // 1. 基础伤害
+        float baseDamage = (shooterAtk / 50f) * skillPower;
 
-        currentHealth -= damage;
-        Debug.Log("苔芙受到 " + attackType + " 伤害 " + damage + "，剩余生命: " + currentHealth);
+        // 2. 获取自身防御力
+        float defense = (attackType == "Physical") ? pdef : mdef;
 
-        if (currentHealth <= 0)
+        // 3. 防御减免
+        float defenseMultiplier = 100f / (100f + defense);
+
+        // 4. 最终伤害（乘上暴击倍率）
+        float finalDamage = baseDamage * defenseMultiplier * critMultiplier;
+
+        // 5. 扣血
+        currentHp -= finalDamage;
+        Debug.Log("苔芙受到 " + finalDamage.ToString("F1") + " 伤害，剩余血量: " + currentHp.ToString("F1"));
+
+        if (currentHp <= 0)
         {
             Debug.Log("苔芙阵亡了！");
             Destroy(gameObject);
         }
     }
 
-    // 碰到主角造成伤害
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            other.GetComponent<PlayerController>().TakeDamage(attackPower, "Physical");
+            other.GetComponent<PlayerController>().TakeDamage(patk, collisionPower, "Physical");
         }
     }
 }

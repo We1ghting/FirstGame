@@ -916,10 +916,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   speed: 5
   bulletPrefab: {fileID: 1557961283937224264, guid: 736bf7773dcfdab48a424fdc9c116a01, type: 3}
-  fireRate: 0.3
-  maxHealth: 100
-  physDefense: 0
-  magDefense: 0
+  fireRate: 0.45
+  hp: 100
+  pdef: 0
+  mdef: 0
+  atk: 20
+  matk: 50
+  critRate: 0.02
+  critDamage: 1.1
+  wt: 2
+  virtue1: "\u8D1E\u6D01"
+  virtue2: "\u65E0"
   healthBarFill: {fileID: 796089107}
 --- !u!212 &1426826305
 SpriteRenderer:
