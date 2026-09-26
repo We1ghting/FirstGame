@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI; // 【新增】必须加上，不然认不出 Image
+using TMPro; // 【新增260926】用于属性UI文本
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,8 +9,8 @@ public class PlayerController : MonoBehaviour
 
     // 子弹相关变量
     public GameObject bulletPrefab;
-    public float fireRate = 0.3f; // 射速
-    private float nextFireTime = 0f;
+    [Range(10f, 500f)] public float atkSpeed = 100f; // 【修改260926】攻速属性，两位数控制，值越大越快，默认为100
+    private float nextFireTime = 0f; // 【修改260926】冷却计时器保留
 
     // ================== 基础数值 ==================
     public float hp = 100f;        // 最大血量
@@ -28,8 +29,19 @@ public class PlayerController : MonoBehaviour
     public string virtue1 = "贞洁";                  // 第一美德属性（待实装克制）
     public string virtue2 = "无";                    // 第二美德属性
 
+    // ================== 新增260926：倍率变量（为了以后做属性提升道具预留的） ==================
+    public float pAtkMul = 1.0f;   // 物理攻击倍率 (1.0 = 100%)
+    public float pDefMul = 1.0f;   // 物理防御倍率
+    public float mAtkMul = 1.0f;   // 魔法攻击倍率
+    public float mDefMul = 1.0f;   // 魔法防御倍率
+    public float crRMul = 1.0f;    // 暴击率倍率
+    public float crDMul = 1.0f;    // 暴击伤害倍率
+    public float wtMul = 1.0f;     // 重量倍率
+
     // 血条 UI
     public Image healthBarFill; // 【新增】用来存放血条的 UI
+    public TextMeshProUGUI hpText; // 【新增260926】血条上的血量文本
+    public TextMeshProUGUI statText; // 【新增260926】左侧属性面板的 UI 文本
 
     // ================== 2. 生命周期方法区 ==================
     void Start()
@@ -71,28 +83,43 @@ public class PlayerController : MonoBehaviour
 
         if ((shootX != 0 || shootY != 0) && Time.time >= nextFireTime)
         {
-            nextFireTime = Time.time + fireRate;
+            // 【修改260926】根据当前攻速，动态计算实际冷却时间 (0.45秒 是基准间隔)
+            float currentFireRate = 0.45f / (atkSpeed / 100f); // 【修改260926】
+            nextFireTime = Time.time + currentFireRate; // 【修改260926】
+
             Vector3 shootDirection = new Vector3(shootX, shootY, 0).normalized;
             GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
 
-            // ========== 核心修改：子弹接收主角的属性 ==========
             BulletController bulletScript = bullet.GetComponent<BulletController>();
             bulletScript.moveDirection = shootDirection;
 
-            // 1. 把主角当前的魔攻打在子弹身上
-            bulletScript.shooterAtk = matk;
+            // 【修改260926】根据武器自身的攻击类型，决定传递魔攻还是物攻给子弹
+            if (bulletScript.attackType == "Magic") // 【新增260926】
+            {
+                bulletScript.shooterAtk = matk; // 【新增260926】
+            }
+            else // 【新增260926】
+            {
+                bulletScript.shooterAtk = atk; // 【新增260926】
+            }
 
-            // 2. 掷骰子判定暴击，结果打在子弹身上
+            // 【新增260926】传递主角自身的属性（用来判断本系加成），不要修改子弹自带的属性
+            bulletScript.shooterVirtue = virtue1;
+
+            // 暴击判定
             if (Random.value <= critRate)
             {
-                bulletScript.damageMultiplier = critDamage; // 暴击！
+                bulletScript.damageMultiplier = critDamage;
                 Debug.Log("小狗触发暴击！");
             }
             else
             {
-                bulletScript.damageMultiplier = 1.0f; // 普通伤害
+                bulletScript.damageMultiplier = 1.0f;
             }
         }
+
+        // 实时刷新属性面板和血量面板 // 【新增260926】
+        UpdateAttributeUI(); // 【新增260926】
     }
 
     // 【新增】专门用来刷新血条的方法
@@ -102,6 +129,31 @@ public class PlayerController : MonoBehaviour
         {
             // 把当前血量转换为 0 到 1 的百分比，交给血条填充
             healthBarFill.fillAmount = currentHp / hp;
+        }
+
+        // 【新增260926】刷新血条上的数值文本
+        if (hpText != null)
+        {
+            hpText.text = currentHp.ToString("F0") + " / " + hp.ToString("F0");
+        }
+    }
+
+    // 新增：刷新属性UI的方法 // 【新增260926】
+    void UpdateAttributeUI() // 【新增260926】
+    {
+        if (statText != null)
+        {
+            // 【修改260926】倍率为1.0时不显示，大于1.0时用"×2"的简写格式
+            statText.text =
+                $"PAtk {atk} {(pAtkMul == 1.0f ? "" : $"×{pAtkMul:F1}")}\n" +
+                $"PDef {pdef} {(pDefMul == 1.0f ? "" : $"×{pDefMul:F1}")}\n" +
+                $"MAtk {matk} {(mAtkMul == 1.0f ? "" : $"×{mAtkMul:F1}")}\n" +
+                $"MDef {mdef} {(mDefMul == 1.0f ? "" : $"×{mDefMul:F1}")}\n" +
+                $"CrR {critRate * 100:F0}% {(crRMul == 1.0f ? "" : $"×{crRMul:F1}")}\n" +
+                $"CrD {critDamage * 100:F0}% {(crDMul == 1.0f ? "" : $"×{crDMul:F1}")}\n" +
+                $"WT {wt} {(wtMul == 1.0f ? "" : $"×{wtMul:F1}")}\n" +
+                $"Vir1 {virtue1}\n" +
+                $"Vir2 {virtue2}";
         }
     }
 

@@ -108,6 +108,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   speed: 2
+  hp: 65
+  pdef: 10
+  mdef: 10
+  patk: 50
+  matk: 40
+  collisionPower: 10
+  wt: 1
+  sin1: "\u5AC9\u5992"
+  sin2: "\u65E0"
 --- !u!58 &-3094219061386931448
 CircleCollider2D:
   m_ObjectHideFlags: 0
