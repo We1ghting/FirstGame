@@ -20,6 +20,9 @@ public class EnemyController : MonoBehaviour
     public string sin1 = "嫉妒";            // 第一罪孽属性
     public string sin2 = "无";              // 第二罪孽属性
 
+    public GameObject expOrbPrefab; // 新增260927 掉落经验球的预制体
+    public int expDropMin = 1;      // 新增260927 掉落经验最小值
+    public int expDropMax = 3;      // 新增260927 掉落经验最大值（随机范围，可以自己调）
     // ================== 2. 生命周期方法区 ==================
     void Start()
     {
@@ -79,6 +82,7 @@ public class EnemyController : MonoBehaviour
         if (currentHp <= 0)
         {
             Debug.Log("苔芙阵亡了！");
+            DropExp(); // 新增260927 死亡时掉落经验
             Destroy(gameObject);
         }
     }
@@ -89,6 +93,20 @@ public class EnemyController : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             other.GetComponent<PlayerController>().TakeDamage(patk, collisionPower, "Physical");
+        }
+    }
+    // 新增260927 掉落经验球
+    void DropExp()
+    {
+        if (expOrbPrefab != null)
+        {
+            GameObject orb = Instantiate(expOrbPrefab, transform.position, Quaternion.identity);
+            ExperienceOrb orbScript = orb.GetComponent<ExperienceOrb>();
+            if (orbScript != null)
+            {
+                orbScript.expValue = Random.Range(expDropMin, expDropMax + 1); // 随机数量
+                Debug.Log($"掉落经验球，经验值：{orbScript.expValue}");
+            }
         }
     }
 }

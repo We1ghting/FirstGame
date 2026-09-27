@@ -38,15 +38,23 @@ public class PlayerController : MonoBehaviour
     public float crDMul = 1.0f;    // 暴击伤害倍率
     public float wtMul = 1.0f;     // 重量倍率
 
+    // ================== 新增260927：经验与等级系统 ==================
+    public int currentLevel = 1;   // 当前等级
+    public int currentExp = 0;     // 当前经验
+    public int maxExp;             // 升下一级所需经验
+
     // 血条 UI
     public Image healthBarFill; // 【新增】用来存放血条的 UI
     public TextMeshProUGUI hpText; // 【新增260926】血条上的血量文本
     public TextMeshProUGUI statText; // 【新增260926】左侧属性面板的 UI 文本
+    public TextMeshProUGUI levelText; // 【新增260927】等级显示文本
+    public Image expBarFill; // 【新增260927】底部经验条填充
 
     // ================== 2. 生命周期方法区 ==================
     void Start()
     {
         currentHp = hp; // 【修复】开局满血，统一用 currentHp
+        CalculateMaxExp(); // 【新增260927】开局计算升1级需要多少经验
         Debug.Log("小狗准备好移动了！");
         UpdateHealthUI(); // 【新增】开局先刷新一次血条，显示满血
     }
@@ -122,6 +130,49 @@ public class PlayerController : MonoBehaviour
         UpdateAttributeUI(); // 【新增260926】
     }
 
+    // ================== 新增260927：经验与升级逻辑 ==================
+    // 计算下一级所需经验
+    void CalculateMaxExp()
+    {
+        maxExp = 5 * currentLevel * currentLevel + 15 * currentLevel + 10;
+    }
+
+    // 获取经验
+    public void GainExp(int amount)
+    {
+        currentExp += amount;
+        Debug.Log($"获得 {amount} 经验，当前经验：{currentExp}/{maxExp}");
+
+        // 用while循环防止一次获得大量经验时，直接跳过等级
+        while (currentExp >= maxExp)
+        {
+            currentExp -= maxExp;
+            LevelUp();
+        }
+
+        // 【修改260927】每次获得经验后，立刻刷新UI，让绿条平滑增长
+        UpdateHealthUI();
+    }
+
+    // 升级逻辑
+    void LevelUp()
+    {
+        currentLevel++;
+
+        // 升级属性加成
+        hp += 20;
+        currentHp += 20; // 【修改260927】同步提升当前血量，保证升级后血量是满的（或同比例提升）
+        atk += 2;
+        matk += 2;
+        pdef += 1;
+        mdef += 1;
+        critRate += 0.002f;   // 0.2%
+        critDamage += 0.01f; // 1%
+
+        CalculateMaxExp(); // 重新计算下一级所需经验
+        Debug.Log($"升级！当前等级：{currentLevel}，最大生命值提升至 {hp}，当前生命值提升至 {currentHp}");
+    }
+
     // 【新增】专门用来刷新血条的方法
     void UpdateHealthUI()
     {
@@ -131,10 +182,16 @@ public class PlayerController : MonoBehaviour
             healthBarFill.fillAmount = currentHp / hp;
         }
 
-        // 【新增260926】刷新血条上的数值文本
+        // 【修改260927】刷新血条上的数值文本，把等级加在血量前面
         if (hpText != null)
         {
-            hpText.text = currentHp.ToString("F0") + " / " + hp.ToString("F0");
+            hpText.text = $"Lv {currentLevel}   {currentHp.ToString("F0")} / {hp.ToString("F0")}";
+        }
+
+        // 【新增260927】刷新底部经验条
+        if (expBarFill != null)
+        {
+            expBarFill.fillAmount = (float)currentExp / maxExp;
         }
     }
 
@@ -145,6 +202,7 @@ public class PlayerController : MonoBehaviour
         {
             // 【修改260926】倍率为1.0时不显示，大于1.0时用"×2"的简写格式
             statText.text =
+                $"Exp {currentExp}/{maxExp}\n" + // 【新增260927】属性面板里也留一个经验文本
                 $"PAtk {atk} {(pAtkMul == 1.0f ? "" : $"×{pAtkMul:F1}")}\n" +
                 $"PDef {pdef} {(pDefMul == 1.0f ? "" : $"×{pDefMul:F1}")}\n" +
                 $"MAtk {matk} {(mAtkMul == 1.0f ? "" : $"×{mAtkMul:F1}")}\n" +
