@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
     public float crRMul = 1.0f;    // 暴击率倍率
     public float crDMul = 1.0f;    // 暴击伤害倍率
     public float wtMul = 1.0f;     // 重量倍率
+    public float speedMul = 1.0f; // 【新增260929】移速倍率（以后做移速道具预留）
 
     // ================== 新增260927：经验与等级系统 ==================
     public int currentLevel = 1;   // 当前等级
@@ -47,8 +48,10 @@ public class PlayerController : MonoBehaviour
     public Image healthBarFill; // 【新增】用来存放血条的 UI
     public TextMeshProUGUI hpText; // 【新增260926】血条上的血量文本
     public TextMeshProUGUI statText; // 【新增260926】左侧属性面板的 UI 文本
+    public GameObject timerTextObj; // 【新增260929】生存时间文本对象（用来控制隐藏显示）
     public TextMeshProUGUI levelText; // 【新增260927】等级显示文本
     public Image expBarFill; // 【新增260927】底部经验条填充
+
 
     // ================== 2. 生命周期方法区 ==================
     void Start()
@@ -69,7 +72,11 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDirection = new Vector3(moveX, moveY, 0).normalized;
 
         // 3. 让小狗移动
-        transform.Translate(moveDirection * speed * Time.deltaTime);
+        Vector3 newPos = transform.position + moveDirection * speed * Time.deltaTime; // 【修改260929】先算出下一步要移动到的位置
+        // 【新增260929】限制主角的移动范围，防止走出背景边缘
+        newPos.x = Mathf.Clamp(newPos.x, -24f, 24f);
+        newPos.y = Mathf.Clamp(newPos.y, -24f, 24f);
+        transform.position = newPos; // 【修改260929】把限制后的位置赋给主角
 
         // 4. 根据水平输入方向翻转图像
         if (moveX > 0)
@@ -123,6 +130,22 @@ public class PlayerController : MonoBehaviour
             else
             {
                 bulletScript.damageMultiplier = 1.0f;
+            }
+        } // 【注意】射击逻辑到此结束，下面的代码不再受射击条件限制
+
+        // 【修改260929】按 Tab 键切换 UI 面板的显示与隐藏（移到了最外层，随时可以按）
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            Debug.Log("Tab键被按下了！");
+            if (statText != null)
+            {
+                // 切换 statText 的激活状态
+                statText.gameObject.SetActive(!statText.gameObject.activeSelf);
+            }
+            if (timerTextObj != null)
+            {
+                // 切换 TimerText 的激活状态
+                timerTextObj.SetActive(!timerTextObj.activeSelf);
             }
         }
 
@@ -209,6 +232,7 @@ public class PlayerController : MonoBehaviour
                 $"MDef {mdef} {(mDefMul == 1.0f ? "" : $"×{mDefMul:F1}")}\n" +
                 $"CrR {critRate * 100:F0}% {(crRMul == 1.0f ? "" : $"×{crRMul:F1}")}\n" +
                 $"CrD {critDamage * 100:F0}% {(crDMul == 1.0f ? "" : $"×{crDMul:F1}")}\n" +
+                $"Spd {speed * 10:F0} {(speedMul == 1.0f ? "" : $"×{speedMul:F1}")}\n" + // 【新增260929】移速UI显示
                 $"WT {wt} {(wtMul == 1.0f ? "" : $"×{wtMul:F1}")}\n" +
                 $"Vir1 {virtue1}\n" +
                 $"Vir2 {virtue2}";
