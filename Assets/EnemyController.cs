@@ -23,6 +23,10 @@ public class EnemyController : MonoBehaviour
     public GameObject expOrbPrefab; // 新增260927 掉落经验球的预制体
     public int expDropMin = 1;      // 新增260927 掉落经验最小值
     public int expDropMax = 3;      // 新增260927 掉落经验最大值（随机范围，可以自己调）
+
+    public GameObject virtueCoinPrefab; // 【新增260930】美德货币预制体
+    [Range(0f, 1f)] 
+    public float virtueDropRate = 0.4f; // 【新增260930】掉落概率，默认40%
     // ================== 2. 生命周期方法区 ==================
     void Start()
     {
@@ -82,7 +86,8 @@ public class EnemyController : MonoBehaviour
         if (currentHp <= 0)
         {
             Debug.Log("苔芙阵亡了！");
-            DropExp(); // 新增260927 死亡时掉落经验
+            DropExp();     // 【新增260927】死亡时掉落经验
+            DropVirtue();  // 【新增260930】改为调用独立的方法，自带随机散落效果
             Destroy(gameObject);
         }
     }
@@ -95,18 +100,35 @@ public class EnemyController : MonoBehaviour
             other.GetComponent<PlayerController>().TakeDamage(patk, collisionPower, "Physical");
         }
     }
-    // 新增260927 掉落经验球
+    // 【修改260930】掉落经验球，加入抛物线/撒出效果
     void DropExp()
     {
         if (expOrbPrefab != null)
         {
-            GameObject orb = Instantiate(expOrbPrefab, transform.position, Quaternion.identity);
+            // 在怪物死亡位置周围随机一个偏移量
+            Vector2 randomOffset = Random.insideUnitCircle * 1.5f; // 半径1.5内的随机圆点
+            Vector2 spawnPos = (Vector2)transform.position + randomOffset;
+
+            GameObject orb = Instantiate(expOrbPrefab, spawnPos, Quaternion.identity);
             ExperienceOrb orbScript = orb.GetComponent<ExperienceOrb>();
             if (orbScript != null)
             {
-                orbScript.expValue = Random.Range(expDropMin, expDropMax + 1); // 随机数量
+                orbScript.expValue = Random.Range(expDropMin, expDropMax + 1);
                 Debug.Log($"掉落经验球，经验值：{orbScript.expValue}");
             }
+        }
+    }
+    // 【新增260930】掉落美德币，加入抛物线/撒出效果
+    void DropVirtue()
+    {
+        if (virtueCoinPrefab != null && Random.value <= virtueDropRate)
+        {
+            // 在怪物死亡位置周围随机一个偏移量
+            Vector2 randomOffset = Random.insideUnitCircle * 1.5f;
+            Vector2 spawnPos = (Vector2)transform.position + randomOffset;
+
+            Instantiate(virtueCoinPrefab, spawnPos, Quaternion.identity);
+            Debug.Log("掉落了一个美德货币！");
         }
     }
 }

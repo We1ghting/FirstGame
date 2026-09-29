@@ -52,6 +52,8 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI levelText; // 【新增260927】等级显示文本
     public Image expBarFill; // 【新增260927】底部经验条填充
 
+    public int currentVirtue = 0; // 【新增260930】当前美德货币数量
+    public TextMeshProUGUI virtueText; // 【新增260930】货币UI文本
 
     // ================== 2. 生命周期方法区 ==================
     void Start()
@@ -237,6 +239,11 @@ public class PlayerController : MonoBehaviour
                 $"Vir1 {virtue1}\n" +
                 $"Vir2 {virtue2}";
         }
+        // 【新增260930】刷新货币UI
+        if (virtueText != null)
+        {
+            virtueText.text = currentVirtue.ToString();
+        }
     }
 
     // ================== 3. 自定义方法区 ==================
@@ -267,5 +274,11 @@ public class PlayerController : MonoBehaviour
             Time.timeScale = 0f; // 【新增】让游戏时间冻结，彻底暂停！
             Destroy(gameObject); // 销毁主角
         }
+    }
+    // 【新增260930】获取美德货币
+    public void GainVirtue(int amount)
+    {
+        currentVirtue += amount;
+        Debug.Log($"获得 {amount} 美德，当前总数：{currentVirtue}");
     }
 }
