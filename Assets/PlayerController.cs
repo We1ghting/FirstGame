@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     // ================== 1. 变量声明区（全部放在最上面） ==================
     public float speed = 5f; // 移动速度
+    public float range = 4f; // 【新增261006】武器射程
 
     // 子弹相关变量
     public GameObject bulletPrefab;
@@ -109,6 +110,8 @@ public class PlayerController : MonoBehaviour
 
             BulletController bulletScript = bullet.GetComponent<BulletController>();
             bulletScript.moveDirection = shootDirection;
+            // 【新增261006】把射程传给子弹
+            bulletScript.range = range;
 
             // 【修改260926】根据武器自身的攻击类型，决定传递魔攻还是物攻给子弹
             if (bulletScript.attackType == "Magic") // 【新增260926】
@@ -196,6 +199,7 @@ public class PlayerController : MonoBehaviour
 
         CalculateMaxExp(); // 重新计算下一级所需经验
         Debug.Log($"升级！当前等级：{currentLevel}，最大生命值提升至 {hp}，当前生命值提升至 {currentHp}");
+        CardManager.Instance.OpenCardSelection(); // 【新增261006】升级时弹出选卡面板
     }
 
     // 【新增】专门用来刷新血条的方法
@@ -235,6 +239,7 @@ public class PlayerController : MonoBehaviour
                 $"CrR {critRate * 100:F0}% {(crRMul == 1.0f ? "" : $"×{crRMul:F1}")}\n" +
                 $"CrD {critDamage * 100:F0}% {(crDMul == 1.0f ? "" : $"×{crDMul:F1}")}\n" +
                 $"Spd {speed * 10:F0} {(speedMul == 1.0f ? "" : $"×{speedMul:F1}")}\n" + // 【新增260929】移速UI显示
+                $"Rng {range * 10:F0} \n" + // 【修改261006】射程UI显示：数值乘以10（比如4显示为40）
                 $"WT {wt} {(wtMul == 1.0f ? "" : $"×{wtMul:F1}")}\n" +
                 $"Vir1 {virtue1}\n" +
                 $"Vir2 {virtue2}";
@@ -274,6 +279,37 @@ public class PlayerController : MonoBehaviour
             Time.timeScale = 0f; // 【新增】让游戏时间冻结，彻底暂停！
             Destroy(gameObject); // 销毁主角
         }
+    }
+    // ================== 新增261006：接收卡牌效果 ==================
+    public void ApplyCardEffect(CardData data)
+    {
+        if (data == null) return;
+
+        // 1. 基础属性直接加
+        hp += data.hpAdd;
+        currentHp += data.hpAdd; // 【重要】血量上限增加时，当前血量也同步增加
+        atk += data.pAtkAdd;   // 【修改】纠正变量大小写
+        matk += data.mAtkAdd;  // 【修改】纠正变量大小写
+        pdef += data.pDefAdd;  // 【修改】纠正变量大小写
+        mdef += data.mDefAdd;  // 【修改】纠正变量大小写
+        speed += data.spdAdd;
+        atkSpeed += data.atkSpeedAdd;
+        range += data.rangeAdd;
+
+        // 3. 百分比属性（比如CrR加10，代码里要转成0.1，所以要除以100）
+        critRate += data.crRAdd / 100f; // 【修改】纠正变量大小写
+        critDamage += data.crDAdd / 100f; // 【修改】纠正变量大小写
+
+        // 4. 倍率加成（比如0.5就加到现有倍率上）
+        pAtkMul += data.pAtkMulAdd;
+        mAtkMul += data.mAtkMulAdd;
+        // hpMul 不在你的代码变量声明里，为了不报错先注释掉
+        // hpMul += data.hpMulAdd; 
+
+        Debug.Log($"【卡牌生效】{data.cardName} 已应用！当前 HP: {hp}, PAtk: {atk}, MAtk: {matk}"); // 【修改】纠正变量大小写
+
+        // 刷新UI显示
+        UpdateHealthUI();
     }
     // 【新增260930】获取美德货币
     public void GainVirtue(int amount)

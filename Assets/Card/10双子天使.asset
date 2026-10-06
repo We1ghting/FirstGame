@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ebf015ea09e2644dbd21b2a92748831, type: 3}
+  m_Name: "10\u53CC\u5B50\u5929\u4F7F"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardName: "\u53CC\u5B50\u5929\u4F7F"
+  description: "\u666E\u653B\u5B50\u5F39\u6570\u91CF+1\uFF0CAtk\u4FEE\u6B63-25%"
+  icon: {fileID: -7613002769572935530, guid: 3eaa9250489f74d4083107df286a30ae, type: 3}
+  rarityLevel: 3
+  price: 20
+  isShopCard: 0
+  isUnique: 0
+  isHoly: 1
+  isCurse: 0
+  pAtkAdd: 0
+  pAtkMulAdd: -25
+  mAtkAdd: 0
+  mAtkMulAdd: -25
+  hpAdd: 0
+  hpMulAdd: 0
+  pDefAdd: 0
+  pDefMulAdd: 0
+  mDefAdd: 0
+  mDefMulAdd: 0
+  crRAdd: 0
+  crRMulAdd: 0
+  crDAdd: 0
+  crDMulAdd: 0
+  spdAdd: 0
+  spdMulAdd: 0
+  atkSpeedAdd: 0
+  atkSpeedMulAdd: 0
+  rangeAdd: 0
+  rangeMulAdd: 0

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ebf015ea09e2644dbd21b2a92748831, type: 3}
+  m_Name: "14\u6717\u57FA\u52AA\u65AF\u4E4B\u67AA"
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  cardName: "\u6717\u57FA\u52AA\u65AF\u4E4B\u67AA"
+  description: "\u5B50\u5F39\u53EF\u7A7F\u900F3\u4E2A\u654C\u4EBA (\u51FB\u4E2D\u524D\u4E09\u4E2A\u654C\u4EBA\u540E\u4E0D\u6D88\u5931)"
+  icon: {fileID: 1342547437844795841, guid: 98feb6af6bd3ae84c936b439def07b77, type: 3}
+  rarityLevel: 4
+  price: 40
+  isShopCard: 1
+  isUnique: 0
+  isHoly: 0
+  isCurse: 0
+  pAtkAdd: 0
+  pAtkMulAdd: 0
+  mAtkAdd: 0
+  mAtkMulAdd: 0
+  hpAdd: 0
+  hpMulAdd: 0
+  pDefAdd: 0
+  pDefMulAdd: 0
+  mDefAdd: 0
+  mDefMulAdd: 0
+  crRAdd: 0
+  crRMulAdd: 0
+  crDAdd: 0
+  crDMulAdd: 0
+  spdAdd: 0
+  spdMulAdd: 0
+  atkSpeedAdd: 0
+  atkSpeedMulAdd: 0
+  rangeAdd: 0
+  rangeMulAdd: 0
