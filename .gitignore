@@ -8,3 +8,5 @@ UserSettings/
 *.sln
 *.suo
 *.user
+Assets/Fonts/ChineseFontSDF.asset
+Assets/Fonts/ChineseFontSDF.asset.meta
