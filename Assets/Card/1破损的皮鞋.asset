@@ -35,7 +35,7 @@ MonoBehaviour:
   crRMulAdd: 0
   crDAdd: 0
   crDMulAdd: 0
-  spdAdd: 5
+  spdAdd: 0.5
   spdMulAdd: 0
   atkSpeedAdd: 0
   atkSpeedMulAdd: 0

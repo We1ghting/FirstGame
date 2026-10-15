@@ -46,14 +46,15 @@ public class CardManager : MonoBehaviour
         List<CardData> selectedCards = new List<CardData>();
 
         // 【修改261006】严格按顺序：2张免费 + 2张商店
+        // 【修改261015】严格按顺序：2张免费 + 2张商店（改用权重抽取）
         // 抽2张免费
         for (int i = 0; i < 2; i++)
         {
             if (freePool.Count > 0)
             {
-                int randIndex = Random.Range(0, freePool.Count);
-                selectedCards.Add(freePool[randIndex]);
-                freePool.RemoveAt(randIndex);
+                CardData card = GetRandomCardByWeight(freePool); // 改用权重抽取
+                selectedCards.Add(card);
+                freePool.Remove(card);
             }
         }
 
@@ -62,9 +63,9 @@ public class CardManager : MonoBehaviour
         {
             if (shopPool.Count > 0)
             {
-                int randIndex = Random.Range(0, shopPool.Count);
-                selectedCards.Add(shopPool[randIndex]);
-                shopPool.RemoveAt(randIndex);
+                CardData card = GetRandomCardByWeight(shopPool); // 改用权重抽取
+                selectedCards.Add(card);
+                shopPool.Remove(card);
             }
         }
 
@@ -79,6 +80,46 @@ public class CardManager : MonoBehaviour
             {
                 cardUI.Setup(data);
             }
+        }
+    }
+    // 【新增261015】根据权重抽卡的方法
+    private CardData GetRandomCardByWeight(List<CardData> pool)
+    {
+        // 1. 计算总权重
+        float totalWeight = 0f;
+        foreach (var card in pool)
+        {
+            totalWeight += GetRarityWeight(card.rarityLevel);
+        }
+
+        // 2. 随机掷骰子
+        float randomValue = Random.Range(0f, totalWeight);
+        float currentWeight = 0f;
+
+        // 3. 根据随机值确定落在哪个区间
+        foreach (var card in pool)
+        {
+            currentWeight += GetRarityWeight(card.rarityLevel);
+            if (randomValue <= currentWeight)
+            {
+                return card;
+            }
+        }
+        return pool[0]; // 兜底，防止极端情况
+    }
+
+    // 【新增261015】根据稀有度获取权重
+    private float GetRarityWeight(int rarityLevel)
+    {
+        switch (rarityLevel)
+        {
+            case 1: return 60f;
+            case 2: return 25f;
+            case 3: return 10f;
+            case 4: return 4f;
+            case 5: return 0.9f;
+            case 6: return 0.1f;
+            default: return 1f;
         }
     }
     // 【新增261006】供卡牌点击时调用的方法

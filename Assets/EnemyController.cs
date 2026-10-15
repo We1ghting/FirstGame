@@ -61,6 +61,14 @@ public class EnemyController : MonoBehaviour
     // 敌人受到的伤害 // 【新增260926】参数增加
     public void TakeDamage(float shooterAtk, float skillPower, string attackType, float critMultiplier, string attackerAttr, string shooterVirtue) // 【新增260926】
     {
+        // 【修改261015】秒杀模式
+        if (DebugConsoleManager.isSeckill)
+        {
+            currentHp = 0; // 直接把血量清空
+            Debug.Log($"【秒杀模式】{gameObject.name} 被瞬间击杀！");
+            Destroy(gameObject);
+            return;
+        }
         // 1. 基础伤害
         float baseDamage = (shooterAtk / 50f) * skillPower;
 

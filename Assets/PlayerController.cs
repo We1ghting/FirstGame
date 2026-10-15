@@ -183,7 +183,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // 升级逻辑
-    void LevelUp()
+    public void LevelUp()
     {
         currentLevel++;
 
@@ -255,6 +255,12 @@ public class PlayerController : MonoBehaviour
     // 新的 TakeDamage 方法：接收对方的攻击力和技能威力
     public void TakeDamage(float enemyAtk, float skillPower, string attackType)
     {
+        // 【修改261015】无敌模式
+        if (DebugConsoleManager.isInvincible)
+        {
+            Debug.Log("无敌模式，免疫伤害！");
+            return;
+        }
         // 1. 计算攻击方的基础伤害
         float baseDamage = (enemyAtk / 50f) * skillPower;
 
